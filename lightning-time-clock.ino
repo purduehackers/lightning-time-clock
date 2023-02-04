@@ -96,6 +96,21 @@ int pointInner(int outer){
   return inner;
 }
 
+int[] convertToLightning(int hour, int min, int sec) {
+  float milllisPerCharge = 21093.75;
+  int millis = 1000 * 60 * 60 * hour + 1000 * 60 * min + 1000 * sec;
+  
+  int totalSparks = millis / millisPerCharge;
+  int totalZaps = totalSparks / 16;
+  int totalBolts = totalZaps / 16;
+
+  int sparks = totalSparks % 16;
+  int zaps = totalZaps % 16;
+  int bolts = totalBolts % 16;
+
+  return [bolts, zaps, sparks]
+}
+
 //int pointMiddle(int heading){
 //  int middle=;
 //  return middle;

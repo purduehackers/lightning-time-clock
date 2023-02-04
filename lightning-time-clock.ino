@@ -50,12 +50,12 @@ int lpix=0;
 int angle=0;
   
 void loop() {
+  Time current = rtc.getTime();
   
-  Time current=rtc.getTime();
-  int[] lightning = convertToLightning(current.hour, current.min, current.sec);
-  Serial.println(lightning[0]);
-  Serial.println(lightning[1]);
-  Serial.println(lightning[2]);
+  LightningTime lightning = convertToLightning(current);
+  Serial.println(lightning.bolts);
+  Serial.println(lightning.zaps);
+  Serial.println(lightning.sparks);
   // Serial.println(current.sec);
   // Serial.println(current.min);
   // Serial.println(current.hour);
@@ -100,9 +100,15 @@ int pointInner(int outer){
   return inner;
 }
 
-int[] convertToLightning(int hour, int min, int sec) {
-  float milllisPerCharge = 21093.75;
-  int millis = 1000 * 60 * 60 * hour + 1000 * 60 * min + 1000 * sec;
+typedef struct lightning_time {
+  int sparks;
+  int zaps;
+  int bolts;
+} LightningTime;
+
+LightningTime convertToLightning(Time current) {
+  float millisPerCharge = 21093.75;
+  int millis = 1000 * 60 * 60 * current.hour + 1000 * 60 * current.min + 1000 * current.sec;
   
   int totalSparks = millis / millisPerCharge;
   int totalZaps = totalSparks / 16;
@@ -112,7 +118,7 @@ int[] convertToLightning(int hour, int min, int sec) {
   int zaps = totalZaps % 16;
   int bolts = totalBolts % 16;
 
-  return [bolts, zaps, sparks]
+  return { sparks, zaps, bolts };
 }
 
 //int pointMiddle(int heading){

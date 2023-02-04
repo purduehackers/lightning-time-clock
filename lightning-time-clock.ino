@@ -52,6 +52,10 @@ int angle=0;
 void loop() {
   
   Time current=rtc.getTime();
+  int[] lightning = convertToLightning(current.hour, current.min, current.sec);
+  Serial.println(lightning[0]);
+  Serial.println(lightning[1]);
+  Serial.println(lightning[2]);
   // Serial.println(current.sec);
   // Serial.println(current.min);
   // Serial.println(current.hour);

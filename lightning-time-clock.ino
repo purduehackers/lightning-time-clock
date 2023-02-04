@@ -1,17 +1,17 @@
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
- #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
+#include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
 #include <string.h>
 using namespace std;
 #include <DS3231.h>
 
-DS3231  rtc(SDA, SCL);
+DS3231 rtc(SDA, SCL);
 
 // Which pin on the Arduino is connected to the NeoPixels?
 // On a Trinket or Gemma we suggest changing this to 1:
-#define LED_PIN    6
+#define LED_PIN 6
 
 // How many NeoPixels are attached to the Arduino?
 #define LED_COUNT 73
@@ -29,10 +29,65 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 // setup() function -- runs once at startup --------------------------------
 
-void setup() {
+typedef struct lightning_time
+{
+  uint8_t sparks;
+  uint8_t zaps;
+  uint8_t bolts;
+} LightningTime;
+
+LightningTime convertToLightning(Time current)
+{
+  float millisPerSpark = 21093.75;
+
+  Serial.println(current.hour);
+  Serial.println(current.min);
+  Serial.println(current.sec);
+  uint32_t hour = current.hour;
+  uint32_t min = current.min;
+  uint32_t sec = current.sec;
+  uint32_t hour_term = hour * 1000u * 60u * 60u;
+  uint32_t min_term = min * 1000u * 60u;
+  uint32_t sec_term = 1000u * sec;
+  Serial.print("cast hour* 1000 * 60 * 60 "); Serial.println(hour * 1000u * 60u * 60u);
+  Serial.print("cast min* 1000 * 60 "); Serial.println(min * 1000u * 60u);
+  Serial.print("cast sec* 1000 "); Serial.println(sec * 1000u);
+  Serial.print("millis"); Serial.println((1000u * 60u * 60u * hour) + (1000u * 60u * min) + (1000u * sec));
+  Serial.print("hour_term"); Serial.println(hour_term);
+  Serial.print("min_term"); Serial.println(min_term);
+  Serial.print("sec_term"); Serial.println(sec_term);
+  Serial.print("hour_term + min_term"); Serial.println(hour_term + min_term);
+  Serial.print("hour_term + sec_term"); Serial.println(hour_term + sec_term);
+  Serial.print("min_term + sec_term"); Serial.println(min_term + sec_term);
+  Serial.print("hour_term + min_term + sec_term"); Serial.println(hour_term + min_term + sec_term);
+  Serial.println("--");
+  uint32_t millis = hour_term + min_term + sec_term;
+
+  Serial.print("\nMillis per Spark: ");
+  Serial.print(millisPerSpark);
+  Serial.print("\nMillis: ");
+  Serial.print(millis);
+  Serial.print("\n");
+
+  uint32_t totalSparks = (millis / millisPerSpark);
+  uint32_t totalZaps = (totalSparks / 16);
+  uint32_t totalBolts = (totalZaps / 16);
+
+  uint8_t sparks = totalSparks % 16;
+  uint8_t zaps = totalZaps % 16;
+  uint8_t bolts = totalBolts % 16;
+
+  return {sparks, zaps, bolts};
+}
+
+void setup()
+{
+  // rtc.setTime(3, 20, 33);
+  // rtc.setDate(4, 2, 2023);
+
   Serial.begin(115200);
 
-  #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
+#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
   clock_prescale_set(clock_div_1);
 #endif
   // END of Trinket-specific code.
@@ -42,86 +97,65 @@ void setup() {
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
-
 }
 
-int pix=0;
-int lpix=0;
-int angle=0;
-  
-void loop() {
+int pix = 0;
+int lpix = 0;
+int angle = 0;
+
+void loop()
+{
   Time current = rtc.getTime();
-  
+
   LightningTime lightning = convertToLightning(current);
+  Serial.println("--");
   Serial.println(lightning.bolts);
   Serial.println(lightning.zaps);
   Serial.println(lightning.sparks);
-  // Serial.println(current.sec);
-  // Serial.println(current.min);
-  // Serial.println(current.hour);
 
-  // angle = Serial.parseInt();
-  angle = current.sec*60;
+  // angle = current.sec*60;
 
-  int outer = pointOuter(angle);
-  int inner = pointInner(outer);
+  // int outer = pointOuter(angle);
+  // int inner = pointInner(outer);
 
-  Serial.print("O:");
-  Serial.println(outer);
-  Serial.print("I:");
-  Serial.println(inner);
+  // Serial.print("O:");
+  // Serial.println(outer);
+  // Serial.print("I:");
+  // Serial.println(inner);
 
-  if(pix>0){
+  if (pix > 0)
+  {
     lpix = pix;
   }
-  
-  strip.setPixelColor(outer, strip.Color(251, 203, 59));
-  strip.setPixelColor(inner, strip.Color(251, 203, 59));
-  delay(1000);
-  
+
+  strip.setPixelColor(lightning.bolts, strip.Color(255, 0, 0));
+  strip.setPixelColor(lightning.zaps + 32, strip.Color(0, 255, 0));
+  strip.setPixelColor(lightning.sparks + 56, strip.Color(0, 0, 255));
   strip.show();
-  strip.setPixelColor(outer, strip.Color(0,0,0));
-  strip.setPixelColor(inner, strip.Color(0,0,0));
-  
-  
+
+  delay(1000);
+  strip.setPixelColor(lightning.bolts, strip.Color(0, 0, 0));
+  strip.setPixelColor(lightning.zaps + 32, strip.Color(0, 0, 0));
+  strip.setPixelColor(lightning.sparks + 56, strip.Color(0, 0, 0));
 }
 
 // outer 32
-// middl 25 
+// middl 25
 // inner 16
 
-int pointOuter(int heading){
-  int outer=(int)ceil(heading/11.25);
+int pointOuter(int heading)
+{
+  int outer = (int)ceil(heading / 11.25);
   return outer;
 }
 
-int pointInner(int outer){
-  int inner=(outer/2)+57;
+int pointInner(int outer)
+{
+  int inner = (outer / 2) + 57;
   return inner;
 }
 
-typedef struct lightning_time {
-  int sparks;
-  int zaps;
-  int bolts;
-} LightningTime;
-
-LightningTime convertToLightning(Time current) {
-  float millisPerCharge = 21093.75;
-  int millis = 1000 * 60 * 60 * current.hour + 1000 * 60 * current.min + 1000 * current.sec;
-  
-  int totalSparks = millis / millisPerCharge;
-  int totalZaps = totalSparks / 16;
-  int totalBolts = totalZaps / 16;
-
-  int sparks = totalSparks % 16;
-  int zaps = totalZaps % 16;
-  int bolts = totalBolts % 16;
-
-  return { sparks, zaps, bolts };
-}
-
-//int pointMiddle(int heading){
-//  int middle=;
-//  return middle;
-//}
+// int pointMiddle(int heading){
+//   int middle=;
+//   return middle;
+// }

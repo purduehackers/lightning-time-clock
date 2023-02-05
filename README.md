@@ -1,2 +1,2 @@
 # lightning-time-clock
-turning Purdue Hackers' Lightning Time into an Arduino/NeoPixel clock
+[Lightning Time](https://github.com/purduehackers/time) represented as an Arduino/NeoPixel clock 🔴🟠🟡🟢🔵🟣

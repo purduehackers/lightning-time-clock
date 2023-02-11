@@ -64,7 +64,7 @@ void setup()
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
-  rtc.setTime(2, 31, 45);
+  rtc.setTime(23, 59, 52);
   rtc.setDate(11, 2, 2023);
 }
 
@@ -105,7 +105,7 @@ void loop()
         strip.setPixelColor(i, strip.Color(0,0,0));
       }
   }
-  for (int i = 0; i < (lightning.bolts * 2) + 1; i++) {
+  for (int i = 0; i < (lightning.bolts * 2) + 2; i++) {
     strip.setPixelColor(i, strip.Color(outputr, 161, 0));
   }
   if (lightning.zaps == 0) {

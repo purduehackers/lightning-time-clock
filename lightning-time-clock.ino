@@ -49,25 +49,25 @@ LightningTime convertToLightning(Time current)
   uint32_t hour_term = hour * 1000u * 60u * 60u;
   uint32_t min_term = min * 1000u * 60u;
   uint32_t sec_term = 1000u * sec;
-  Serial.print("cast hour* 1000 * 60 * 60 "); Serial.println(hour * 1000u * 60u * 60u);
-  Serial.print("cast min* 1000 * 60 "); Serial.println(min * 1000u * 60u);
-  Serial.print("cast sec* 1000 "); Serial.println(sec * 1000u);
-  Serial.print("millis"); Serial.println((1000u * 60u * 60u * hour) + (1000u * 60u * min) + (1000u * sec));
-  Serial.print("hour_term"); Serial.println(hour_term);
-  Serial.print("min_term"); Serial.println(min_term);
-  Serial.print("sec_term"); Serial.println(sec_term);
-  Serial.print("hour_term + min_term"); Serial.println(hour_term + min_term);
-  Serial.print("hour_term + sec_term"); Serial.println(hour_term + sec_term);
-  Serial.print("min_term + sec_term"); Serial.println(min_term + sec_term);
-  Serial.print("hour_term + min_term + sec_term"); Serial.println(hour_term + min_term + sec_term);
-  Serial.println("--");
+  // Serial.print("cast hour* 1000 * 60 * 60 "); Serial.println(hour * 1000u * 60u * 60u);
+  // Serial.print("cast min* 1000 * 60 "); Serial.println(min * 1000u * 60u);
+  // Serial.print("cast sec* 1000 "); Serial.println(sec * 1000u);
+  // Serial.print("millis"); Serial.println((1000u * 60u * 60u * hour) + (1000u * 60u * min) + (1000u * sec));
+  // Serial.print("hour_term"); Serial.println(hour_term);
+  // Serial.print("min_term"); Serial.println(min_term);
+  // Serial.print("sec_term"); Serial.println(sec_term);
+  // Serial.print("hour_term + min_term"); Serial.println(hour_term + min_term);
+  // Serial.print("hour_term + sec_term"); Serial.println(hour_term + sec_term);
+  // Serial.print("min_term + sec_term"); Serial.println(min_term + sec_term);
+  // Serial.print("hour_term + min_term + sec_term"); Serial.println(hour_term + min_term + sec_term);
+  // Serial.println("--");
   uint32_t millis = hour_term + min_term + sec_term;
 
-  Serial.print("\nMillis per Spark: ");
-  Serial.print(millisPerSpark);
-  Serial.print("\nMillis: ");
-  Serial.print(millis);
-  Serial.print("\n");
+  // Serial.print("\nMillis per Spark: ");
+  // Serial.print(millisPerSpark);
+  // Serial.print("\nMillis: ");
+  // Serial.print(millis);
+  // Serial.print("\n");
 
   uint32_t totalSparks = (millis / millisPerSpark);
   uint32_t totalZaps = (totalSparks / 16);
@@ -82,8 +82,6 @@ LightningTime convertToLightning(Time current)
 
 void setup()
 {
-  // rtc.setTime(3, 20, 33);
-  // rtc.setDate(4, 2, 2023);
 
   Serial.begin(115200);
 
@@ -92,16 +90,42 @@ void setup()
 #endif
   // END of Trinket-specific code.
 
-  strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-  strip.show();            // Turn OFF all pixels ASAP
-  strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
+  // strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  // strip.show();            // Turn OFF all pixels ASAP
+  // strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
+  rtc.setTime(0, 58, 20);
+  rtc.setDate(10, 2, 2023);
 }
 
 int pix = 0;
 int lpix = 0;
 int angle = 0;
+
+int input_start = 0;    // The lowest number of the range input.
+int input_end = 15;    // The largest number of the range input.
+int output_start = 0; // The lowest number of the range output.
+int output_end = 255;  // The largest number of the range output.
+
+int outputr= 0;
+int outputg= 0;
+int outputb= 0;
+
+// char hexLookUp[17] = "0123456789ABCDEF";
+// int* hexToRGB(String hexString) {
+//     int red16 = (int)strtol(&hexString[0], NULL, 16);
+//     int red1 = (int)strtol(&hexString[1], NULL, 16);
+//     int red = red16 + red1;
+//     int green16 = (int)strtol(&hexString[2], NULL, 16);
+//     int green1 = (int)strtol(&hexString[3], NULL, 16);
+//     int green = green16 + green1;
+//     int blue16 = (int)strtol(&hexString[4], NULL, 16);
+//     int blue1 = (int)strtol(&hexString[5], NULL, 16);
+//     int blue = blue16 + blue1;
+
+//     return (int[3]) {red,green,blue};
+// }
 
 void loop()
 {
@@ -128,9 +152,13 @@ void loop()
     lpix = pix;
   }
 
-  strip.setPixelColor(lightning.bolts, strip.Color(255, 0, 0));
-  strip.setPixelColor(lightning.zaps + 32, strip.Color(0, 255, 0));
-  strip.setPixelColor(lightning.sparks + 56, strip.Color(0, 0, 255));
+  int outputr = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.bolts - input_start);
+  int outputg = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.zaps - input_start);
+  int outputb = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.sparks - input_start);
+
+  strip.setPixelColor(lightning.bolts, strip.Color(outputr, 161, 0));
+  strip.setPixelColor(lightning.zaps + 32, strip.Color(50, outputg, 214));
+  strip.setPixelColor(lightning.sparks + 56, strip.Color(246, 133, outputb));
   strip.show();
 
   delay(1000);

@@ -64,8 +64,8 @@ void setup()
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
-  // rtc.setTime(1, 7, 5);
-  // rtc.setDate(11, 2, 2023);
+  rtc.setTime(2, 31, 45);
+  rtc.setDate(11, 2, 2023);
 }
 
 int pix = 0;
@@ -100,15 +100,39 @@ void loop()
   int outputg = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.zaps - input_start);
   int outputb = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.sparks - input_start);
 
-  strip.setPixelColor(lightning.bolts, strip.Color(outputr, 161, 0));
-  strip.setPixelColor(lightning.zaps + 32, strip.Color(50, outputg, 214));
-  strip.setPixelColor(lightning.sparks + 56, strip.Color(246, 133, outputb));
+  if (lightning.bolts == 0) {
+      for (int i = 0; i < 32; i++) {
+        strip.setPixelColor(i, strip.Color(0,0,0));
+      }
+  }
+  for (int i = 0; i < (lightning.bolts * 2) + 1; i++) {
+    strip.setPixelColor(i, strip.Color(outputr, 161, 0));
+  }
+  if (lightning.zaps == 0) {
+    for (int i = 32; i < 57; i++) {
+      strip.setPixelColor(i, strip.Color(0,0,0));
+    }
+  }
+  for (int i = 32; i < lightning.zaps + 33; i++) {
+    strip.setPixelColor(i, strip.Color(50, outputg, 214));
+  }
+  if (lightning.sparks == 0) {
+    for (int i = 56; i < 73; i++) {
+      strip.setPixelColor(i, strip.Color(0,0,0));
+    }
+  }
+  for (int i = 56; i < lightning.sparks + 57; i++) {
+    strip.setPixelColor(i, strip.Color(246, 133, outputb));
+  }
+  // strip.setPixelColor(lightning.bolts * 2, strip.Color(outputr, 161, 0));
+  // strip.setPixelColor(lightning.zaps + 32, strip.Color(50, outputg, 214));
+  // strip.setPixelColor(lightning.sparks + 56, strip.Color(246, 133, outputb));
   strip.show();
 
-  delay(1000);
-  strip.setPixelColor(lightning.bolts, strip.Color(0, 0, 0));
-  strip.setPixelColor(lightning.zaps + 32, strip.Color(0, 0, 0));
-  strip.setPixelColor(lightning.sparks + 56, strip.Color(0, 0, 0));
+  // delay(1000);
+  // strip.setPixelColor(lightning.bolts, strip.Color(0, 0, 0));
+  // strip.setPixelColor(lightning.zaps + 32, strip.Color(0, 0, 0));
+  // strip.setPixelColor(lightning.sparks + 56, strip.Color(0, 0, 0));
 }
 
 // outer 32

@@ -64,7 +64,7 @@ void setup()
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
-  rtc.setTime(23, 59, 52);
+  rtc.setTime(0, 28, 4);
   rtc.setDate(11, 2, 2023);
 }
 
@@ -113,8 +113,13 @@ void loop()
       strip.setPixelColor(i, strip.Color(0,0,0));
     }
   }
-  for (int i = 32; i < lightning.zaps + 33; i++) {
-    strip.setPixelColor(i, strip.Color(50, outputg, 214));
+  for (float i = 32.0; i < (lightning.zaps * 1.5) + 33; i++) {
+    if (24 % lightning.zaps != 0) {
+      strip.setPixelColor((int) i, strip.Color(50, outputg, 214));
+      strip.setPixelColor(ceil((lightning.zaps * 1.5) + 32), strip.Color(12, ceil(outputg / 4), 54));
+    } else {
+      strip.setPixelColor(i, strip.Color(50, outputg, 214));
+    }
   }
   if (lightning.sparks == 0) {
     for (int i = 56; i < 73; i++) {

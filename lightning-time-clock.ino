@@ -12,13 +12,14 @@ DS3231 rtc(SDA, SCL);
 // Which pin on the Arduino is connected to the NeoPixels?
 #define LED_PIN 6
 
-#define LED_COUNT 73
-// 32 + 25 + 16
+#define LED_COUNT 97
+// 32 + 25 + 16 + 24
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 typedef struct lightning_time
 {
+  uint8_t charges;
   uint8_t sparks;
   uint8_t zaps;
   uint8_t bolts;
@@ -26,7 +27,8 @@ typedef struct lightning_time
 
 LightningTime convertToLightning(Time current)
 {
-  float millisPerSpark = 21093.75;
+  // float millisPerSpark = 21093.75;
+  float millisPerCharge =  1318.359375;
 
   Serial.println(current.hour);
   Serial.println(current.min);
@@ -38,15 +40,17 @@ LightningTime convertToLightning(Time current)
   uint32_t min_term = min * 1000u * 60u;
   uint32_t sec_term = 1000u * sec;
   uint32_t millis = hour_term + min_term + sec_term;
-  uint32_t totalSparks = (millis / millisPerSpark);
+  uint32_t totalCharges = (millis / millisPerCharge);
+  uint32_t totalSparks = (totalCharges / 16);
   uint32_t totalZaps = (totalSparks / 16);
   uint32_t totalBolts = (totalZaps / 16);
 
+  uint8_t charges = totalCharges % 16;
   uint8_t sparks = totalSparks % 16;
   uint8_t zaps = totalZaps % 16;
   uint8_t bolts = totalBolts % 16;
 
-  return {sparks, zaps, bolts};
+  return {charges, sparks, zaps, bolts};
 }
 
 void setup()
@@ -64,8 +68,13 @@ void setup()
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
+<<<<<<< Updated upstream
   // rtc.setTime(0, 28, 4);
   // rtc.setDate(11, 2, 2023);
+=======
+  // rtc.setTime(3, 35, 30);
+  // rtc.setDate(18, 2, 2023);
+>>>>>>> Stashed changes
 }
 
 int pix = 0;
@@ -128,6 +137,14 @@ void loop()
   }
   for (int i = 56; i < lightning.sparks + 57; i++) {
     strip.setPixelColor(i, strip.Color(246, 133, outputb));
+  }
+  if (lightning.charges == 0) {
+    for (float i = 72; i < 96; i++) {
+      strip.setPixelColor(i, strip.Color(0,0,0));
+    }
+  }
+  for (int i = 72; i < lightning.charges + 73; i++) {
+    strip.setPixelColor(i, strip.Color(255, 255, 255));
   }
   // strip.setPixelColor(lightning.bolts * 2, strip.Color(outputr, 161, 0));
   // strip.setPixelColor(lightning.zaps + 32, strip.Color(50, outputg, 214));

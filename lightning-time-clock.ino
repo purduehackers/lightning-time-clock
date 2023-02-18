@@ -64,8 +64,8 @@ void setup()
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
-  rtc.setTime(0, 28, 4);
-  rtc.setDate(11, 2, 2023);
+  // rtc.setTime(0, 28, 4);
+  // rtc.setDate(11, 2, 2023);
 }
 
 int pix = 0;

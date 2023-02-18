@@ -112,7 +112,7 @@ void loop()
         strip.setPixelColor(i, strip.Color(0,0,0));
       }
   }
-  for (int i = 0; i < (lightning.bolts * 2) + 2; i++) {
+  for (int i = 0; i < (lightning.bolts + 1) * 2; i++) {
     strip.setPixelColor(i, strip.Color(outputr, 161, 0));
   }
   offset += 32;
@@ -123,7 +123,7 @@ void loop()
       strip.setPixelColor(i + offset, strip.Color(0,0,0));
     }
   }
-  for (int i = 0; i < lightning.zaps * 1.5; i++) {
+  for (int i = 0; i < (lightning.zaps + 1) * 1.5; i++) {
     strip.setPixelColor(i + offset, strip.Color(50, outputg, 214));
   }
   // If zaps * 1.5 doesn't map to 24 when zaps is odd
@@ -139,7 +139,7 @@ void loop()
       strip.setPixelColor(i + offset, strip.Color(0,0,0));
     }
   }
-  for (int i = 0; i < lightning.sparks; i++) {
+  for (int i = 0; i < lightning.sparks + 1; i++) {
     strip.setPixelColor(i + offset, strip.Color(246, 133, outputb));
   }
   offset += 16;
@@ -152,7 +152,7 @@ void loop()
     }
   }
   // TODO
-  for (int i = 0; i < lightning.charges; i++) {
+  for (int i = 0; i < (lightning.charges + 1); i++) {
     strip.setPixelColor(i + offset, strip.Color(255, 255, 255));
   }
   // offset += 24;

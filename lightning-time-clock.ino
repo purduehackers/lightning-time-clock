@@ -68,13 +68,8 @@ void setup()
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
 
   rtc.begin();
-<<<<<<< Updated upstream
-  // rtc.setTime(0, 28, 4);
-  // rtc.setDate(11, 2, 2023);
-=======
   // rtc.setTime(3, 35, 30);
   // rtc.setDate(18, 2, 2023);
->>>>>>> Stashed changes
 }
 
 int pix = 0;

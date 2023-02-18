@@ -12,8 +12,8 @@ DS3231 rtc(SDA, SCL);
 // Which pin on the Arduino is connected to the NeoPixels?
 #define LED_PIN 6
 
-#define LED_COUNT 97
-// 32 + 25 + 16 + 24
+#define LED_COUNT 96
+// 32 + 24 + 16 + 24
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -104,6 +104,9 @@ void loop()
   int outputg = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.zaps - input_start);
   int outputb = output_start + ((output_end - output_start) / (input_end - input_start)) * (lightning.sparks - input_start);
 
+  int offset = 0;
+
+  // 32 leds
   if (lightning.bolts == 0) {
       for (int i = 0; i < 32; i++) {
         strip.setPixelColor(i, strip.Color(0,0,0));
@@ -112,35 +115,48 @@ void loop()
   for (int i = 0; i < (lightning.bolts * 2) + 2; i++) {
     strip.setPixelColor(i, strip.Color(outputr, 161, 0));
   }
+  offset += 32;
+
+  // 24 leds
   if (lightning.zaps == 0) {
-    for (int i = 32; i < 57; i++) {
-      strip.setPixelColor(i, strip.Color(0,0,0));
+    for (int i = 0; i < 24; i++) {
+      strip.setPixelColor(i + offset, strip.Color(0,0,0));
     }
   }
-  for (float i = 32.0; i < (lightning.zaps * 1.5) + 33; i++) {
-    if (24 % lightning.zaps != 0) {
-      strip.setPixelColor((int) i, strip.Color(50, outputg, 214));
-      strip.setPixelColor(ceil((lightning.zaps * 1.5) + 32), strip.Color(12, ceil(outputg / 4), 54));
-    } else {
-      strip.setPixelColor(i, strip.Color(50, outputg, 214));
-    }
+  for (int i = 0; i < lightning.zaps * 1.5; i++) {
+    strip.setPixelColor(i + offset, strip.Color(50, outputg, 214));
   }
+  // If zaps * 1.5 doesn't map to 24 when zaps is odd
+  if (lightning.zaps % 2 == 1 && lightning.sparks >= 8) {
+    int nextLed = lightning.zaps * 1.5 + 1;
+    strip.setPixelColor(nextLed + offset, strip.Color(50, outputg, 214));
+  }
+  offset += 24;
+
+  // 16 leds
   if (lightning.sparks == 0) {
-    for (int i = 56; i < 73; i++) {
-      strip.setPixelColor(i, strip.Color(0,0,0));
+    for (int i = 0; i < 16; i++) {
+      strip.setPixelColor(i + offset, strip.Color(0,0,0));
     }
   }
-  for (int i = 56; i < lightning.sparks + 57; i++) {
-    strip.setPixelColor(i, strip.Color(246, 133, outputb));
+  for (int i = 0; i < lightning.sparks; i++) {
+    strip.setPixelColor(i + offset, strip.Color(246, 133, outputb));
   }
+  offset += 16;
+
+
+  // 24 leds
   if (lightning.charges == 0) {
-    for (float i = 72; i < 96; i++) {
-      strip.setPixelColor(i, strip.Color(0,0,0));
+    for (int i = 0; i < 24; i++) {
+      strip.setPixelColor(i + offset, strip.Color(0,0,0));
     }
   }
-  for (int i = 72; i < lightning.charges + 73; i++) {
-    strip.setPixelColor(i, strip.Color(255, 255, 255));
+  // TODO
+  for (int i = 0; i < lightning.charges; i++) {
+    strip.setPixelColor(i + offset, strip.Color(255, 255, 255));
   }
+  // offset += 24;
+
   // strip.setPixelColor(lightning.bolts * 2, strip.Color(outputr, 161, 0));
   // strip.setPixelColor(lightning.zaps + 32, strip.Color(50, outputg, 214));
   // strip.setPixelColor(lightning.sparks + 56, strip.Color(246, 133, outputb));
